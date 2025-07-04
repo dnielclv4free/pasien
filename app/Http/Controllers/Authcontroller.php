@@ -14,12 +14,12 @@ class Authcontroller extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
-    }
+    /* public function __construct() */
+    /* { */
+    /*     $this->middleware('auth:api', ['except' => ['login','register']]); */
+    /* } */
 
-    public function register()
+    public function register-p()
     {
         $validator= Validator::make(request()->all(),[
             'name'=>'required',
@@ -38,17 +38,18 @@ class Authcontroller extends Controller
         ]);
 
         if ($user) {
-            return response()->json(['message' => 'Pendaftaran gagal']);
-        }else{
             return response()->json(['message' => 'Pendaftaran berhasil']);
+        }else{
+            return response()->json(['message' => 'gagal']);
         }
+        return redirect()->route('sect.login');
     }
     /**
      * Get a JWT via given credentials.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login-p()
     {
         $credentials = request(['email', 'password']);
 
