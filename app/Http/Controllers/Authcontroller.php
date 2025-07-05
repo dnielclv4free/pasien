@@ -11,114 +11,106 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class Authcontroller extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
-    /* public function __construct() */
-    /* { */
-    /*     $this->middleware('auth:api', ['except' => ['login','register']]); */
-    /* } */
 
-    public function register_p()
+
+    public function registerWeb(Request $request)
     {
-        $validator= Validator::make(request()->all(),[
-            'name'=>'required',
-            'email'=>'required|email|unique:users',
-            'password'=>'required'
+        $validator = Validator::make($request->all(),[
+            'name'=>'required|string|max:255',
+            'email'=>'required|string|email|max:255|unique:users',
+            'password'=>'required|string|min:8'
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            return redirect('register')->withErrors($validator)->withInput();
         }
 
-        $user= User::create([
-            'name'=>request('name'),
-            'email'=>request('email'),
-            'password'=>Hash::make(request('password'))
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        if ($user) {
-            return redirect('/login');
-            return response()->json(['message' => 'Pendaftaran berhasil']);
-        }else{
-            return response()->json(['message' => 'gagal']);
-        }
+        return redirect('/login')->with('success', 'Pendaftaran berhasil!');
     }
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login_p()
+
+    public function loginWeb(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::guard('web')->attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors(['email' => 'Email atau Password salah.'])->withInput();
+    }
+
+    public function logoutWeb(Request $request)
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login');
+    }
+
+
+    public function loginApi()
     {
         $credentials = request(['email', 'password']);
 
-        if (! $token = auth()->attempt($credentials)) {
-            return redirect('/login');
+        if (! $token = auth('api')->attempt($credentials)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return redirect('/dashboard');
+        return $this->respondWithToken($token);
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
+    public function registerApi(Request $request) {
+        $validator = Validator::make($request->all(),[
+            'name'=>'required|string|max:255',
+            'email'=>'required|string|email|max:255|unique:users',
+            'password'=>'required|string|min:8'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password)
+        ]);
+
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ], 201);
+    }
+
     public function me()
     {
-        return response()->json(auth()->user());
+        return response()->json(auth('api')->user());
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout()
+    public function logoutApi()
     {
-        try {
-        // Invalidate the token
-            JWTAuth::invalidate(JWTAuth::getToken());
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Successfully logged out'
-            ]);
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to logout, please try again'
-            ], 500);
-        }
+        auth('api')->logout();
+        return response()->json(['message' => 'Successfully logged out']);
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->respondWithToken(auth('api')->refresh());
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     protected function respondWithToken($token)
     {
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
     }
 }
