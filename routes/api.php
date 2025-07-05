@@ -8,7 +8,7 @@ use App\Http\Middleware\isLogin;
 Route::group(['isLogin'],function($router){
     Route::post('register',[Authcontroller::class,'register_p'])->name('auth.register_p');
     Route::post('login',[Authcontroller::class,'login_p'])->name('auth.login_p');
-    Route::post('logout',[Authcontroller::class,'logout']);
+    Route::post('logout',[Authcontroller::class,'logout'])->name('auth.logout');
     Route::post('refresh',[Authcontroller::class,'refresh']);
     Route::post('me',[Authcontroller::class,'me']);
 });

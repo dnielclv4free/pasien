@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class Authcontroller extends Controller
 {
@@ -36,8 +38,9 @@ class Authcontroller extends Controller
             'email'=>request('email'),
             'password'=>Hash::make(request('password'))
         ]);
-        return redirect()->route('sect.login');
+
         if ($user) {
+            return redirect('/login');
             return response()->json(['message' => 'Pendaftaran berhasil']);
         }else{
             return response()->json(['message' => 'gagal']);
@@ -53,10 +56,11 @@ class Authcontroller extends Controller
         $credentials = request(['email', 'password']);
 
         if (! $token = auth()->attempt($credentials)) {
+            return redirect('/login');
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        return redirect('/dashboard');
     }
 
     /**
@@ -76,9 +80,20 @@ class Authcontroller extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        try {
+        // Invalidate the token
+            JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json(['message' => 'Successfully logged out']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully logged out'
+            ]);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to logout, please try again'
+            ], 500);
+        }
     }
 
     /**
