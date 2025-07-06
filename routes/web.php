@@ -5,7 +5,7 @@ use App\Http\Controllers\Sectcontroller;
 use App\Http\Controllers\Authcontroller;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\isLogin;
-
+use App\Http\Middleware\verifyadmin;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,11 +24,13 @@ Route::middleware('guest')->group(function () {
 Route::middleware(isLogin::class)->group(function () {
     Route::get('/dashboard', [Sectcontroller::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [Authcontroller::class, 'logoutWeb'])->name('logout');
-    Route::get('/dashboard/{user}/data',[Authcontroller::class,'cari'])->name('cari');
-    Route::get('user',[UserController::class,'index'])->name('user.index');
-    Route::get('user/create',[UserController::class,'create'])->name('user.create');
-    Route::post('user',[UserController::class,'store'])->name('user.store');
-    Route::get('user/{user}/edit',[UserController::class,'edit'])->name('user.edit');
-    Route::put('user/{user}',[UserController::class,'update'])->name('user.update');
-    Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
+    Route::middleware(verifyadmin::class)->group(function(){
+        Route::get('/dashboard/{user}/data',[Authcontroller::class,'cari'])->name('cari');
+        Route::get('user',[UserController::class,'index'])->name('user.index');
+        Route::get('user/create',[UserController::class,'create'])->name('user.create');
+        Route::post('user',[UserController::class,'store'])->name('user.store');
+        Route::get('user/{user}/edit',[UserController::class,'edit'])->name('user.edit');
+        Route::put('user/{user}',[UserController::class,'update'])->name('user.update');
+        Route::delete('user/{user}',[UserController::class, 'destroy'])->name('user.destroy');
+    });
 });

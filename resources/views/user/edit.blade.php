@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,28 +14,23 @@
                 <label for="email">Email : </label><br>
                 <input id="email" class="block mt-1 w-full" type="text" name="email" value="{{$user->email}}"
                     required/>
-
-
             </div>
             <div>
                 <label for="">Nama  : </label><br>
                 <input id="name" class="block mt-1 w-full" type="text" name="name" value="{{$user->name}}"
                     required/>
-
             </div>
             <div>
-                <label for="password">Password : </label><br>
-                <input id="password" class="block mt-1 w-full" type="text" name="password" value="{{$user->password}}"
-                    required/>
-
-
+                <label for="password">Password (kosongkan jika tidak ingin diubah) : </label><br>
+                <input id="password" class="block mt-1 w-full" type="text" name="password" value=""
+                    />
             </div>
             <div id="role{{$user->id}}">
                 <label for="role_id">Role </label><br>
                 <select name="role_id" id="role_id" class="form-control">
                     <option value="">Pilih Role</option>
                     @foreach($roles as $role)
-                    <option value="{{role_id}}">{{$role->role_name}}</option>
+                    <option value="{{$role->id}}" {{$user->role_id == $role->id ? 'selected' : ''}}>{{$role->role_name}}</option>
                     @endforeach
                 </select>
             </div>
@@ -50,7 +44,6 @@
                     </div>
             @endif
 
-
             <button>submit</button>
         </form>
     </div>
@@ -58,5 +51,3 @@
 
 </body>
 </html>
-
-

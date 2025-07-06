@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         /* $middleware->append(isLogin::class); */
+        /* $middleware->alias([ */
+        /*     'isAdmin'=>\App\Http\Middleware\verifyadmin::class, */
+        /* ]); */
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

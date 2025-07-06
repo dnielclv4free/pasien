@@ -6,7 +6,9 @@
 </div>
 
 <div mt-2>
+    @if(Auth::user()->role_name=='admin')
     <p><a href={{route('user.index')}}>Data Pasien</a></p>
+    @endif
 </div>
 
 
