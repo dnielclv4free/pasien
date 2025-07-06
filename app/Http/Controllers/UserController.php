@@ -55,16 +55,16 @@ class UserController extends Controller
         /*     'password'=>'required|string|min:8' */
         /* ]); */
         if ($request->filled('email')) {
-            $request->validate(['email'=>'required|string|email|max:255|unique:users,email']);
+            $request->validate(['email'=>'string|email|max:255|unique:users,email'.$user->email]);
         }
         if ($request->filled('name')) {
-            $request->validate(['name'=>'required|string|max:255']);
+            $request->validate(['name'=>'string|max:255']);
         }
         if ($request->filled('password')) {
             $request->validate(['password' => 'string|min:8']);
             $user->password = Hash::make($request->password);
         }
-        $user->save();
+        $user->update();
         return redirect()->route('user.index')->with('suscces','User Berhasil diupdate!');
 
     }

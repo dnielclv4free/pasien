@@ -31,6 +31,15 @@
 
 
             </div>
+            <div id="role{{$user->id}}">
+                <label for="role_id">Role </label><br>
+                <select name="role_id" id="role_id" class="form-control">
+                    <option value="">Pilih Role</option>
+                    @foreach($roles as $role)
+                    <option value="{{role_id}}">{{$role->role_name}}</option>
+                    @endforeach
+                </select>
+            </div>
              @if ($errors->any())
                     <div class="alert alert-danger">
                         <ul>

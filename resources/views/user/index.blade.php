@@ -17,6 +17,7 @@
             <tr>
                 <th>Email</th>
                 <th>Nama</th>
+                <th>Role</th>
                 <th>Aksi</th>
             </tr>
         </thead>
