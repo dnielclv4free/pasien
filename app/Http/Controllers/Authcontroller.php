@@ -59,7 +59,12 @@ class Authcontroller extends Controller
 
     public function logoutWeb(Request $request)
     {
-        auth('api')->logout();
+        try {
+            auth('api')->logout();
+        }
+        catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+
+        }
 
         return redirect('/login')->withCookie(\Cookie::forget('token'));
     }

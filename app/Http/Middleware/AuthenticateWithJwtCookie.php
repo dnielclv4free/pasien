@@ -6,32 +6,32 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Http\Middleware\BaseMiddleware;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Illuminate\Support\Facades\Auth;
 
-
-class AuthenticateWithJwtCookie extends BaseMiddleware
+class AuthenticateWithJwtCookie
 {
     public function handle(Request $request, Closure $next): Response
     {
         try {
             $token = $request->cookie('token');
             if (!$token) {
-                return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
+                return redirect()->route('login');
             }
 
-            $user = JWTAuth::setToken($token)->authenticate();
+            if (! $user = JWTAuth::setToken($token)->authenticate()) {
+                return redirect()->route('login')->withCookie(\Cookie::forget('token'));
+            }
 
-            Auth::login($user, false);
+            Auth::shouldUse('api');
+            Auth::setUser($user);
 
         } catch (TokenExpiredException $e) {
-
-            return redirect()->route('login')->with('error', 'Sesi Anda telah berakhir, silakan login kembali.');
+            return redirect()->route('login')->with('error', 'Sesi Anda telah berakhir.')
+                                             ->withCookie(\Cookie::forget('token'));
         } catch (JWTException $e) {
-
-            return redirect()->route('login')->with('error', 'Terjadi masalah dengan sesi Anda.');
+            return redirect()->route('login')->with('error', 'Sesi tidak valid.')->withCookie(\Cookie::forget('token'));
         }
 
         return $next($request);
