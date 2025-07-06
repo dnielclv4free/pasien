@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class Sectcontroller extends Controller
 {
@@ -18,6 +19,8 @@ class Sectcontroller extends Controller
     }
 
     public function dashboard() {
-        return view('dashboard');
+
+        $user=Auth::user();
+        return view('dashboard',['user'=>$user]);
     }
 }

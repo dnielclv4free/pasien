@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -24,11 +25,12 @@ class Authcontroller extends Controller
         if ($validator->fails()) {
             return redirect('register')->withErrors($validator)->withInput();
         }
-
+        $penggunaRoleId = Role::where('role_name', 'pengguna')->first()->id;
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id'=>$penggunaRoleId,
         ]);
 
         return redirect('/login')->with('success', 'Pendaftaran berhasil!');
@@ -76,11 +78,12 @@ class Authcontroller extends Controller
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
         }
-
+        $penggunaRoleId = Role::where('role_name', 'pengguna')->first()->id;
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'role_id'=>$penggunaRoleId,
         ]);
 
         return response()->json([
