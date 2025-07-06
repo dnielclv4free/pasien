@@ -40,20 +40,28 @@ class Authcontroller extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('web')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+        if (! $token = auth('api')->attempt($credentials)) {
+            return back()->withErrors(['email' => 'Email atau Password salah.'])->withInput();
         }
 
-        return back()->withErrors(['email' => 'Email atau Password salah.'])->withInput();
+        return redirect()->intended('dashboard')->cookie(
+            'token',
+            $token,
+            config('jwt.ttl'),
+            '/',
+            null,
+            false,
+            true,
+            false,
+            'lax'
+        );
     }
 
     public function logoutWeb(Request $request)
     {
-        Auth::guard('web')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/login');
+        auth('api')->logout();
+
+        return redirect('/login')->withCookie(\Cookie::forget('token'));
     }
 
 

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Sectcontroller;
 use App\Http\Controllers\Authcontroller;
 use App\Http\Controllers\UserController;
-use App\Http\Middleware\isLogin;
+use App\Http\Middleware\AuthenticateWithJwtCookie;
 use App\Http\Middleware\verifyadmin;
 
 Route::get('/', function () {
@@ -21,7 +21,7 @@ Route::middleware('guest')->group(function () {
 
 
 //sudah login
-Route::middleware(isLogin::class)->group(function () {
+Route::middleware(AuthenticateWithJwtCookie::class)->group(function () {
     Route::get('/dashboard', [Sectcontroller::class, 'dashboard'])->name('dashboard');
     Route::post('/logout', [Authcontroller::class, 'logoutWeb'])->name('logout');
     Route::middleware(verifyadmin::class)->group(function(){
